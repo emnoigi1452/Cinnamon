@@ -1,0 +1,7 @@
+name: Cinnamon
+version: '1.0-alpha1'
+main: me.stella.CinnamonBukkit
+api-version: 1.13
+authors:
+  - StellarSeal_
+description: An advanced, reflective system for tracking items.

@@ -1,0 +1,18 @@
+# Main settings for background components of Cinnamon
+engine:
+  # UUID Map: A map containing player's UUID and their respective username
+  uuid-map:
+    # Should this feature be enabled?
+    enabled: true
+    # Update interval for the map (calculated in milliseconds)
+    # Note that this task runs over hundreds to thousands of accounts per update
+    # Default value: 60,000 (or 60s)
+    interval: 60000
+  # Chunk map: A map containing all generated chunks on the server
+  chunk-map:
+    # Should this feature be enabled?
+    enabled: true
+    # Update interval for the map (calculated in milliseconds)
+    # Note that this will read thousands of region files per update
+    # Default value: 300,000 (or 300s ~ 5 minutes)
+    interval: 300000
