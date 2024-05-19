@@ -21,7 +21,7 @@ Currently, the following search operations are supported
 
 And more operations planning to be added in later releases!
 
-**Cinnamon** supports both basic and advanced searches, and accessible both via the command-line and through a GUI.
+**Cinnamon** supports both basic and advanced searches, and accessible both via the command-line and through a GUI menu to fully customize your searches.
 
 > [!NOTE]
 > You can combine perform multiple queries at the same time (in development)
