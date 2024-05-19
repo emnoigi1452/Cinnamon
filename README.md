@@ -3,10 +3,9 @@
 
 ![Cinnamoroll](https://th.bing.com/th/id/OIF.YQaVQsNjn06cmTN4z20F9g?rs=1&pid=ImgDetMain)
 
-[!IMPORTANT]
-As of now, the plugin is still incomplete, with more features to be added :3
+> [!IMPORTANT]
+> As of now, the plugin is still incomplete, with more features to be added :3
 
-[!NOTE]
 Update **(19/05/224)**
 - Added basic player data scanning
 - Implemented search queries
