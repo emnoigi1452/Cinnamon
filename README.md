@@ -18,6 +18,7 @@ Currently, the following search operations are supported
 - Search for a specific item
 - Search for items that are locked/locked by a specific player **(Requires LockedItems)**
 - Search for MMOItems/MMOItems with a specific ID.
+
 And more operations planning to be added in later releases!
 
 **Cinnamon** supports both basic and advanced searches, and accessible both via the command-line and through a GUI.
