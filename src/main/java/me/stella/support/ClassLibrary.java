@@ -1,7 +1,10 @@
 package me.stella.support;
 
+import me.stella.CinnamonTable;
+import me.stella.CinnamonUtils;
 import me.stella.core.decompress.world.WorldAlgorithm;
 import me.stella.core.decompress.world.WorldDeserializer;
+import me.stella.core.storage.CinnamonLocale;
 import org.bukkit.Server;
 
 import java.util.HashMap;
@@ -14,13 +17,16 @@ public class ClassLibrary {
 
     @SuppressWarnings("unchecked")
     public static void init(Server server) {
-        String path = "me.stella.support.{version}.";
+        CinnamonLocale locale = CinnamonTable.get(CinnamonLocale.class);
+        String path = "me.stella.support.minecraft.{version}.";
         try {
             ClassLibrary.version = server.getClass().getName().split("\\.")[3];
             ClassDictionary versionDictionary = ClassDictionary.valueOf(version);
+            String classLoading = locale.getDebugMessage("loaded-class");
             for(String className: versionDictionary.getClasses()) {
                 Class<SupportFrame> classSupport = (Class<SupportFrame>) Class.forName(path.replace("{version}", version));
                 SupportFrame frame = (SupportFrame) classSupport.getConstructors()[0].newInstance();
+                CinnamonUtils.debug(classLoading.replace("{class}", frame.getDirectory()));
                 inject(className, frame);
             }
             frames.values().forEach(SupportFrame::init);
@@ -32,6 +38,8 @@ public class ClassLibrary {
             }
             if(!(WorldDeserializer.isAlgorithmPresent()))
                 throw new RuntimeException("Unsupported game version detected! Please contact the developer!");
+            CinnamonUtils.debug(locale.getDebugMessage("world-algo-info")
+                    .replace("{algorithm}", WorldDeserializer.getAlgorithmID()));
         } catch(Exception err) { err.printStackTrace(); }
     }
 

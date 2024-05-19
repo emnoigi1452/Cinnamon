@@ -25,26 +25,35 @@ public class WorldDeserializer {
         WorldDeserializer.algorithm = algorithm;
     }
 
+    public static String getAlgorithmID() {
+        assert isAlgorithmPresent();
+        return algorithm.name();
+    }
+
     public static boolean isAlgorithmPresent() {
         return algorithm != null;
     }
 
     public static CompletableFuture<List<int[]>> readLoadedChunks(@NotNull World world) {
         return CompletableFuture.supplyAsync(() -> {
+            // get world data folder
             File serverFolder = CinnamonBukkit.getMain().getDataFolder().getParentFile().getParentFile();
             File worldFolder = new File(serverFolder, world.getName());
             if(!worldFolder.exists())
                 return new ArrayList<>();
-            //SupportFrame regionFile = ClassLibrary.getSupportFor("RegionFile");
             List<int[]> chunks = new ArrayList<>();
+            // get current active algorithm because mojang being a bitch
             WorldAlgorithm.DecompressionAlgorithm algorithm = WorldDeserializer.algorithm.getAlgorithm();
             for(File region: Objects.requireNonNull(new File(worldFolder, "region").listFiles())) {
                 if(!region.isFile())
                     continue;
+                // get region name
                 String[] mcaSyntax = region.getName().split("\\.");
                 int regionX = Integer.parseInt(mcaSyntax[1]); int regionZ = Integer.parseInt(mcaSyntax[2]);
+                // reading offset data and region file object
                 ObjectWrapper<?> parsedRegion = algorithm.buildRegionFile(region);
                 int[] offsetData = algorithm.getOffsetData(parsedRegion);
+                // i have no idea how this part even works, and i'm the one who coded it
                 for(int x = 0; x < 32; x++) {
                     for(int z = 0; z < 32; z++) {
                         if(offsetData[x + (z * 32)] != 0)
@@ -63,6 +72,21 @@ public class WorldDeserializer {
             if(!worldFolder.exists())
                 return null;
             return algorithm.algorithm.parseNBTData(worldFolder, chunkX, chunkZ);
+        });
+    }
+
+    public static CompletableFuture<Boolean> isEmptyChunk(@NotNull World world, int chunkX, int chunkZ) {
+        return CompletableFuture.supplyAsync(() -> {
+           ObjectWrapper<?> chunkData = readChunkData(world, chunkX, chunkZ).join();
+           SupportFrame nbtTagCompound = ClassLibrary.getSupportFor("NBTTagCompound");
+           SupportFrame nbtTagList = ClassLibrary.getSupportFor("NBTTagList");
+           ObjectWrapper<?> tileEntities = nbtTagCompound.invokeMethod("get",
+                   chunkData.getObject(), "TileEntities");
+           ObjectWrapper<?> entities = nbtTagCompound.invokeMethod("get",
+                   chunkData.getObject(), "Entities");
+           int sizeTile = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()));
+           int sizeEntities = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", entities.getObject()));
+           return (sizeTile < 1) && (sizeEntities < 1);
         });
     }
 
@@ -126,5 +150,4 @@ public class WorldDeserializer {
             return itemFrames;
         });
     }
-
 }

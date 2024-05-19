@@ -1,6 +1,9 @@
 package me.stella.core.storage;
 
 import me.stella.CinnamonBukkit;
+import me.stella.core.storage.branches.config.ChunkMap;
+import me.stella.core.storage.branches.config.UUIDMap;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
@@ -15,6 +18,22 @@ public class CinnamonConfig implements CinnamonFile {
         if(!file.exists())
             throw new RuntimeException("Configuration file is not generated! Please try reloading...");
         load(file);
+    }
+
+    public ChunkMap getChunkCacheSettings() {
+        ConfigurationSection chunkCache = getBukkitConfig().getConfigurationSection("engine.chunk-map");
+        return new ChunkMap(chunkCache.getBoolean("enabled", false),
+                chunkCache.getLong("interval", 72000L), chunkCache.getBoolean("skip-empty-chunks", true));
+    }
+
+    public UUIDMap getUUIDCacheSettings() {
+        ConfigurationSection chunkCache = getBukkitConfig().getConfigurationSection("engine.uuid-map");
+        return new UUIDMap(chunkCache.getBoolean("enabled", false),
+                chunkCache.getLong("interval", 72000L));
+    }
+
+    public boolean enableDebugMode() {
+        return this.config.getBoolean("engine.debug", false);
     }
 
     @Override

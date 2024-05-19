@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class PlayerDataDeserializer {
 
-    public static CompletableFuture<Object> readPlayerData(@NotNull UUID uid) {
+    public static CompletableFuture<ObjectWrapper<?>> readPlayerData(@NotNull UUID uid) {
         Server server = Bukkit.getServer();
         World worldMain = server.getWorlds().get(0);
         File serverFolder = CinnamonBukkit.getMain().getDataFolder().getParentFile().getParentFile();
@@ -27,7 +27,7 @@ public class PlayerDataDeserializer {
         return readPlayerData(playerDataFile);
     }
 
-    public static CompletableFuture<Object> readPlayerData(@NotNull File playerDataFile) {
+    public static CompletableFuture<ObjectWrapper<?>> readPlayerData(@NotNull File playerDataFile) {
         final SupportFrame nbtCompressedStreamTools = ClassLibrary.getSupportFor("NBTCompressedStreamTools");
         return CompletableFuture.supplyAsync(() -> {
             if(!playerDataFile.exists())
@@ -45,7 +45,7 @@ public class PlayerDataDeserializer {
         final SupportFrame nbtTagList = ClassLibrary.getSupportFor("NBTTagList");
         final SupportFrame itemStack = ClassLibrary.getSupportFor("ItemStack");
         return CompletableFuture.supplyAsync(() -> {
-            Inventory inventory = Bukkit.createInventory(null, 36, "");
+            Inventory inventory = Bukkit.createInventory(null, 45, "");
             ObjectWrapper<?> inventoryData = nbtTagCompound.invokeMethod("get", wrapper, "Inventory");
             int size = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", inventoryData).getObject());
             for(int x = 0; x < size; x++) {
@@ -55,12 +55,18 @@ public class PlayerDataDeserializer {
                         new Class<?>[] { nbtTagCompound.getClassWrapper().getWrappingClass() }, slotData);
                 if(ObjectCaster.toBoolean(itemStack.invokeMethod("isEmpty", netStack).getObject()))
                     continue;
-                if(slot >= 0 && slot <= 35)
+                if(slot <= 35)
                     inventory.setItem(slot, DynamicBukkit.toBukkitStack(netStack));
+                else if(slot >= 100 && slot <= 103)
+                    inventory.setItem(39 - (slot - 100), DynamicBukkit.toBukkitStack(netStack));
+                else
+                    inventory.setItem(40, DynamicBukkit.toBukkitStack(netStack));
             }
             return inventory;
         });
     }
+
+
 
     public static CompletableFuture<Inventory> buildEnderChest(@NotNull Object playerData) {
         return buildEnderChest(new ObjectWrapper<>(playerData));
