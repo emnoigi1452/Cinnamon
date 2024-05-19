@@ -8,11 +8,25 @@
   <img src="https://th.bing.com/th/id/OIF.YQaVQsNjn06cmTN4z20F9g?rs=1&pid=ImgDetMain" alt="Cinnamon" />
 </p>
 
-> [!IMPORTANT]
-> As of now, the plugin is still incomplete, with more features to be added :3
+**How does it work?** `Cinnamon` can perform scans on the server via its data files (world data, player data) to obtain an accurate count of items on the server
+Server owners can obtain an accurate count of items stored within:
+- Player's inventories/Ender Chest
+- Chests/Shulker boxes, minecarts, barrels...
+- Item frames, furnaces...
 
-# API
-*Not yet implemented...*
+Currently, the following search operations are supported
+- Search for a specific item
+- Search for items that are locked/locked by a specific player **(Requires LockedItems)**
+- Search for MMOItems/MMOItems with a specific ID.
+And more operations planning to be added in later releases!
+
+**Cinnamon** supports both basic and advanced searches, and accessible both via the command-line and through a GUI.
+
+> [!NOTE]
+> You can combine perform multiple queries at the same time (in development)
+
+# API *(Not yet implemented)*
+For developers, the API will be implemented when the plugin is finalized.
 
 # Changelogs
 
