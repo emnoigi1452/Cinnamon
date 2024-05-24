@@ -1,9 +1,11 @@
 package me.stella.core.tasks.scanners;
 
-import me.stella.core.tasks.scanners.data.ItemData;
-import me.stella.core.tasks.scanners.data.LockedItemData;
-import me.stella.core.tasks.scanners.data.MMOItemData;
+import me.stella.core.tasks.scanners.data.impl.EnchantmentData;
+import me.stella.core.tasks.scanners.data.impl.ItemData;
+import me.stella.core.tasks.scanners.data.impl.LockedItemData;
+import me.stella.core.tasks.scanners.data.impl.MMOItemData;
 import me.stella.core.tasks.scanners.io.SearchQuery;
+import me.stella.reflection.ObjectWrapper;
 import me.stella.support.external.SupportProcessor;
 import me.stella.support.external.plugins.LockedItems;
 import me.stella.support.external.plugins.MMOItems;
@@ -11,7 +13,12 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ScannerUtils {
+
+    public static final List<Character> comparativeSymbols = Arrays.asList('>', '<', '=');
 
     public static int performScan(SearchQuery query, Inventory inventory, int cap) {
         int counter = 0;
@@ -51,9 +58,65 @@ public class ScannerUtils {
                             counter += itemStack.getAmount();
                     }
                     break;
+                case ITEM_ENCHANT:
+                    EnchantmentData data = (EnchantmentData) query.getData().getData();
+                    int level = itemStack.getEnchantmentLevel(data.getEnchantment());
+                    if(data.compare(level, data.getLevel()))
+                        counter += itemStack.getAmount();
+                    break;
             }
         }
         return counter;
     }
 
+    public static String getOperation(String operationExpression) {
+        switch(operationExpression) {
+            case ">":
+                return "greater";
+            case "<":
+                return "smaller";
+            case "=":
+                return "equal";
+            case ">=":
+                return "greaterOrEqual";
+            case "<=":
+                return "smallerOrEqual";
+            default:
+                throw new RuntimeException("Invalid expression!");
+        }
+    }
+
+    public static int parseInt(String param) {
+        try {
+            return Integer.parseInt(param);
+        } catch(Exception err) { return 0; }
+    }
+
+    public static boolean isNumberTag(ObjectWrapper<?> tag) {
+        return tag.getObjectType().getGenericSuperclass().getTypeName().contains("NBTNumber");
+    }
+
+    public static byte getByteSize(Number num) {
+       String numType = num.getClass().getSimpleName();
+       switch(numType) {
+           case "Byte":
+               return 1;
+           case "Short":
+               return 2;
+           case "Integer":
+           case "Float":
+               return 4;
+           case "Long":
+           case "Double":
+               return 8;
+
+       }
+       return -1;
+    }
+
+    public static char validateSymbol(char c) {
+        if(comparativeSymbols.contains(c))
+            return c;
+        return ' ';
+    }
 }

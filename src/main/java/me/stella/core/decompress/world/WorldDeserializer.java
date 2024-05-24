@@ -84,8 +84,8 @@ public class WorldDeserializer {
                    chunkData.getObject(), "TileEntities");
            ObjectWrapper<?> entities = nbtTagCompound.invokeMethod("get",
                    chunkData.getObject(), "Entities");
-           int sizeTile = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()));
-           int sizeEntities = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", entities.getObject()));
+           int sizeTile = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()).getObject());
+           int sizeEntities = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", entities.getObject()).getObject());
            return (sizeTile < 1) && (sizeEntities < 1);
         });
     }
@@ -97,7 +97,7 @@ public class WorldDeserializer {
             SupportFrame nbtTagList = ClassLibrary.getSupportFor("NBTTagList");
             ObjectWrapper<?> tileEntities = nbtTagCompound.invokeMethod("get",
                     chunkData.getObject(), "TileEntities");
-            int size = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()));
+            int size = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()).getObject());
             List<Inventory> chests = new ArrayList<>();
             for(int i = 0; i < size; i++) {
                 ObjectWrapper<?> entity = nbtTagList.invokeMethod("get", tileEntities.getObject(), i);
@@ -106,12 +106,12 @@ public class WorldDeserializer {
                 if(id.contains("chest")) {
                     ObjectWrapper<?> items = nbtTagCompound.invokeMethod("get",
                             tileEntities.getObject(), "Items");
-                    int listSize = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", items.getObject()));
+                    int listSize = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", items.getObject()).getObject());
                     Map<Integer, ItemStack> slots = new HashMap<>();
                     for(int x = 0; x < listSize; x++) {
                         ObjectWrapper<?> item = nbtTagList.invokeMethod("get", items.getObject(), x);
                         int slot = ObjectCaster.toByte(nbtTagCompound.invokeMethod("getByte",
-                                item.getObject(), "Slot"));
+                                item.getObject(), "Slot").getObject());
                         ObjectWrapper<?> netStack = itemStack.getClassWrapper().newInstance(
                                 new Class<?>[] { nbtTagCompound.getClassWrapper().getWrappingClass() }, item);
                         slots.put(slot, DynamicBukkit.toBukkitStack(netStack));
@@ -133,7 +133,7 @@ public class WorldDeserializer {
             SupportFrame nbtTagList = ClassLibrary.getSupportFor("NBTTagList");
             ObjectWrapper<?> tileEntities = nbtTagCompound.invokeMethod("get",
                     chunkData.getObject(), "Entities");
-            int size = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()));
+            int size = ObjectCaster.toInteger(nbtTagList.invokeMethod("size", tileEntities.getObject()).getObject());
             List<ItemStack> itemFrames = new ArrayList<>();
             for(int i = 0; i < size; i++) {
                 ObjectWrapper<?> entity = nbtTagList.invokeMethod("get", tileEntities.getObject(), i);

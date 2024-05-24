@@ -18,6 +18,10 @@ public class ObjectWrapper<T> {
         return object;
     }
 
+    public Class<T> getObjectType() {
+        return this.typeObject;
+    }
+
     public String getClassName() {
         return typeObject.getSimpleName();
     }

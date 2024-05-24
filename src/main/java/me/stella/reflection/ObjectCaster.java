@@ -12,17 +12,33 @@ public class ObjectCaster {
         return false;
     }
 
-    public static Integer toInteger(@NotNull Object object) {
+    public static int toInteger(@NotNull Object object) {
         assert validate(object, int.class, Integer.class);
         return Integer.parseInt(String.valueOf(object).trim());
     }
 
-    public static Byte toByte(@NotNull Object object) {
+
+    public static byte toByte(@NotNull Object object) {
         assert validate(object, byte.class, Byte.class);
         return Byte.parseByte(String.valueOf(object).trim());
     }
 
-    public static Boolean toBoolean(@NotNull Object object) {
+    public static short toShort(@NotNull Object object) {
+        assert validate(object, short.class, Short.class);
+        return Short.parseShort(String.valueOf(object).trim());
+    }
+
+    public static double toDouble(@NotNull Object object) {
+        assert validate(object, double.class, Double.class);
+        return Double.parseDouble(String.valueOf(object).trim());
+    }
+
+    public static float toFloat(@NotNull Object object) {
+        assert validate(object, float.class, Float.class);
+        return Float.parseFloat(String.valueOf(object).trim());
+    }
+
+    public static boolean toBoolean(@NotNull Object object) {
         assert validate(object, boolean.class, Boolean.class);
         return Boolean.getBoolean(String.valueOf(object).trim());
     }

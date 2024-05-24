@@ -18,11 +18,11 @@ public class MMOItems {
         ObjectWrapper<?> nms = DynamicBukkit.toNetStack(item);
         if(nms == null)
             return false;
-        if(!ObjectCaster.toBoolean(itemStack.invokeMethod("hasTag", nms)))
+        if(!ObjectCaster.toBoolean(itemStack.invokeMethod("hasTag", nms).getObject()))
             return false;
         ObjectWrapper<?> tagObject = itemStack.invokeMethod("getTag", nms);
         return ObjectCaster.toBoolean(nbtTagCompound.invokeMethod("hasKey",
-                tagObject, "MMOITEMS_ITEM_ID"));
+                tagObject, "MMOITEMS_ITEM_ID").getObject());
     }
 
     public static String getMMOItemID(@NotNull ItemStack item) {

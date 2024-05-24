@@ -19,7 +19,7 @@ public enum WorldAlgorithm {
         @Override
         public int[] getOffsetData(@NotNull ObjectWrapper<?> parsedRegion) {
             SupportFrame regionFile = ClassLibrary.getSupportFor("RegionFile");
-            return ObjectCaster.toIntArray(regionFile.accessField("offset", parsedRegion));
+            return ObjectCaster.toIntArray(regionFile.accessField("offset", parsedRegion).getObject());
         }
 
         @Override
