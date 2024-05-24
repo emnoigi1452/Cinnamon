@@ -18,6 +18,7 @@ Currently, the following search operations are supported
 - Search for a specific item
 - Search for items that are locked/locked by a specific player **(Requires LockedItems)**
 - Search for MMOItems/MMOItems with a specific ID.
+- Search for enchantments with a specific level requirement (larger/smaller/equal..)
 
 And more operations planning to be added in later releases!
 
@@ -34,9 +35,7 @@ For developers, the API will be implemented when the plugin is finalized.
 > [!IMPORTANT]
 > This section will only display changes made to the latest version of the source code
 
-Update **(19/05/224)**
-- Added basic player data scanning
-- Implemented search queries
-- Switched to lucko's helper library
-- Added basic startup logic
-- Added support for `LockedItems` and `MMOItems` searches.
+Update **(24/05/2024)**
+- Added reporters to view scanning process
+- Implemented basic comparison scanners
+- Added enchantment scanning (based on enchantment level).
