@@ -35,7 +35,12 @@ For developers, the API will be implemented when the plugin is finalized.
 > [!IMPORTANT]
 > This section will only display changes made to the latest version of the source code
 
-Update **(24/05/2024)**
-- Added reporters to view scanning process
-- Implemented basic comparison scanners
-- Added enchantment scanning (based on enchantment level).
+Update **(04/06/2024)**
+- Reporters now use native java schedulers instead of the Bukkit scheduler
+- Implemented world chests and item frames scanners
+- Optimize background tasks logic
+- Optimize support frame loading logic
+- Defaults world decompression algorithm to `LEGACY`
+- Fixes exceptions which occur in data deserializers
+- Remove native classes from variable table
+- Fixes random bugs with logging (debug / info messages)
