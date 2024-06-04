@@ -44,3 +44,4 @@ Update **(04/06/2024)**
 - Fixes exceptions which occur in data deserializers
 - Remove native classes from variable table
 - Fixes random bugs with logging (debug / info messages)
+- Changes default locale messages
