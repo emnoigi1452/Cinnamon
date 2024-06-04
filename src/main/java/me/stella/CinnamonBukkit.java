@@ -13,8 +13,10 @@ import me.stella.core.tasks.background.AsyncUUIDMapper;
 import me.stella.support.ClassLibrary;
 import me.stella.support.external.plugins.LockedItems;
 import me.stella.support.external.plugins.MMOItems;
-import org.bukkit.plugin.PluginLoadOrder;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -25,12 +27,13 @@ import java.util.stream.Collectors;
         description = "An advanced, reflective system for tracking items.",
         authors = {"StellarSeal_"},
         softDepends = {"PlaceholderAPI"},
-        load = PluginLoadOrder.POSTWORLD
+        apiVersion = "1.13"
 )
 public final class CinnamonBukkit extends ExtendedJavaPlugin {
 
-    public final static String version = "1.0-alpha01";
+    public final static String version = "1.0-alpha02";
     public static final Logger console = Logger.getLogger("Minecraft");
+    private static final ScheduledExecutorService javaScheduler = Executors.newScheduledThreadPool(64);
     private static CinnamonBukkit main;
     public static boolean debug = false;
 
@@ -43,18 +46,22 @@ public final class CinnamonBukkit extends ExtendedJavaPlugin {
         CinnamonConfig config = new CinnamonConfig(main);
         CinnamonLocale locale = new CinnamonLocale(main);
         CinnamonTable.inject(CinnamonConfig.class, config);
-        CinnamonTable.inject(CinnamonLocale.class, new CinnamonLocale(main));
+        CinnamonTable.inject(CinnamonLocale.class, locale);
         debug = config.enableDebugMode();
-        CinnamonUtils.logInfo(locale.getMessage("plugin.on")
+        CinnamonUtils.logInfo(locale.getMessage("plugin-on")
                 .replace("{version}", version));
         Promise.start().thenRunSync(() -> ClassLibrary.init(this.getServer()))
                 .thenRunAsync(CinnamonBukkit::loadComponents)
                 .thenRunSync(CinnamonBukkit::loadExternalSupport);
-        Schedulers.async().runRepeating(() -> {
-           try {
-               System.gc();
-           } catch(Exception err) { err.printStackTrace(); }
-        }, 200L, 600L);
+        javaScheduler.scheduleAtFixedRate(() -> {
+            try {
+                System.gc();
+            } catch(Exception err) { err.printStackTrace(); }
+        }, 10L, 30L, TimeUnit.SECONDS);
+    }
+
+    public static ScheduledExecutorService getJavaScheduler() {
+        return javaScheduler;
     }
 
     public static void loadExternalSupport() {
@@ -78,10 +85,13 @@ public final class CinnamonBukkit extends ExtendedJavaPlugin {
                 CinnamonTable.inject(AsyncUUIDMapper.class, uidMapper);
                 CinnamonTable.inject(AsyncChunkMapper.class, chunkMapper);
                 Promise.start().thenApplyAsync(n -> locale.getComponentsInfo().stream().map(
-                        str -> str.replace("{mc_ver}", ClassLibrary.version)
+                        str -> str.replace("{mcver}", ClassLibrary.version)
                         .replace("{uid_cache_status}", CinnamonUtils.toOnOff(uidMapConfig.isEnabled()))
                         .replace("{chunk_cache_status}", CinnamonUtils.toOnOff(chunkMapConfig.isEnabled()))
-                ).collect(Collectors.toList()));
+                ).collect(Collectors.toList())).thenApplySync(msg -> {
+                    msg.forEach(CinnamonUtils::logInfo);
+                    return null;
+                });
             } catch(Exception err) { err.printStackTrace(); }
         });
     }

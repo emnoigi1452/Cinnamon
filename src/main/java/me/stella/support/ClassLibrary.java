@@ -7,6 +7,7 @@ import me.stella.core.decompress.world.WorldDeserializer;
 import me.stella.core.storage.CinnamonLocale;
 import org.bukkit.Server;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,8 +24,10 @@ public class ClassLibrary {
             ClassLibrary.version = server.getClass().getName().split("\\.")[3];
             ClassDictionary versionDictionary = ClassDictionary.valueOf(version);
             String classLoading = locale.getDebugMessage("loaded-class");
+            CinnamonUtils.debug("Loading classes: " + Arrays.toString(versionDictionary.getClasses()));
             for(String className: versionDictionary.getClasses()) {
-                Class<SupportFrame> classSupport = (Class<SupportFrame>) Class.forName(path.replace("{version}", version));
+                Class<SupportFrame> classSupport = (Class<SupportFrame>) Class.forName(
+                        path.replace("{version}", version) + className);
                 SupportFrame frame = (SupportFrame) classSupport.getConstructors()[0].newInstance();
                 CinnamonUtils.debug(classLoading.replace("{class}", frame.getDirectory()));
                 inject(className, frame);
@@ -45,7 +48,7 @@ public class ClassLibrary {
 
     public static boolean isBefore(String version, String param) {
         String[] a = version.split("_"), b = param.split("_");
-        int v1 = Integer.parseInt(a[1]), v2 = Integer.parseInt(b[2]);
+        int v1 = Integer.parseInt(a[1]), v2 = Integer.parseInt(b[1]);
         int r1 = Integer.parseInt(a[2].substring(1)), r2 = Integer.parseInt(b[2].substring(1));
         return v1 >= v2 && r1 >= r2;
     }

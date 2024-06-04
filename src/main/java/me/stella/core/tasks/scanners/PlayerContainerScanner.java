@@ -5,6 +5,7 @@ import com.sun.istack.internal.NotNull;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.promise.Promise;
 import me.lucko.helper.scheduler.Task;
+import me.stella.CinnamonBukkit;
 import me.stella.CinnamonTable;
 import me.stella.core.decompress.PlayerDataDeserializer;
 import me.stella.core.tasks.background.AsyncUUIDMapper;
@@ -18,6 +19,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerContainerScanner {
@@ -29,14 +33,15 @@ public class PlayerContainerScanner {
         // attempts a remap of all user's uid
         final PlayerScanReporter reporter = new PlayerScanReporter();
         final AtomicInteger atomicCounter = new AtomicInteger();
+        final ScheduledExecutorService nativeScheduler = CinnamonBukkit.getJavaScheduler();
         if(forceRemap) {
             final SupportFrame nbtTagCompound = ClassLibrary.getSupportFor("NBTTagCompound");
             task = Promise.start().thenApplySync(i -> Arrays.asList(Bukkit.getOfflinePlayers()))
                     .thenApplyAsync(o -> {
                         int size = o.size();
-                        Task phase1Counter = Schedulers.async().runRepeating(() -> {
+                        ScheduledFuture<?> phase1Counter = nativeScheduler.scheduleAtFixedRate(() -> {
                             runUpdate(atomicCounter, size, reporter);
-                        }, 0L, 2L);
+                        }, 0L, 20L, TimeUnit.MILLISECONDS);
                         Map<UUID, String> cache = Collections.synchronizedMap(new HashMap<>());
                         o.stream().map(op -> {
                             ObjectWrapper<?> playerData = PlayerDataDeserializer.readPlayerData(op.getUniqueId()).join();
@@ -47,30 +52,30 @@ public class PlayerContainerScanner {
                             atomicCounter.incrementAndGet();
                             return new Object[] { op.getUniqueId(), name };
                         }).forEach(entry -> cache.put(UUID.fromString(String.valueOf(entry[0])), String.valueOf(entry[1])));
-                        phase1Counter.close(); reporter.nextPhase();
+                        phase1Counter.cancel(true);
                         return ImmutableMap.copyOf(cache);
                     });
         } else task = Promise.start().thenApplyAsync(n -> uidMapper.getUIDCache());
         // start scanning uwu
         return task.thenApplyAsync(uidMap -> {
             // mapping encoded userdata in server's repository
-            int size = uidMap.size(); atomicCounter.set(0);
-            Task phase2Counter = Schedulers.async().runRepeating(() -> {
+            int size = uidMap.size(); atomicCounter.set(0); reporter.nextPhase();
+            ScheduledFuture<?> phase2Counter = nativeScheduler.scheduleAtFixedRate(() -> {
                 runUpdate(atomicCounter, size, reporter);
-            }, 0L, 2L);
+            }, 0L, 20L, TimeUnit.MILLISECONDS);
             Map<String, ObjectWrapper<?>> playerData = new HashMap<>();
             uidMap.forEach((uid, name) -> {
                 ObjectWrapper<?> internalData = PlayerDataDeserializer.readPlayerData(uid).join();
                 playerData.put(name, internalData); atomicCounter.incrementAndGet();
             });
-            phase2Counter.close(); reporter.nextPhase();
+            phase2Counter.cancel(true); reporter.nextPhase();
             return playerData;
         }).thenApplyAsync(playerDataMap -> {
             // i have no idea what i was cooking here, but it works (i think)
             int size = playerDataMap.size(); atomicCounter.set(0);
-            Task phase3Counter = Schedulers.async().runRepeating(() -> {
+            ScheduledFuture<?> phase3Counter = nativeScheduler.scheduleAtFixedRate(() -> {
                 runUpdate(atomicCounter, size, reporter);
-            }, 0L, 1L);
+            }, 0L, 20L, TimeUnit.MILLISECONDS);
             List<ScanResult<ContainerSource, Integer>> output = new ArrayList<>();
             playerDataMap.forEach((player, data) -> {
                 // scanning inventory
@@ -87,6 +92,7 @@ public class PlayerContainerScanner {
                     System.gc();
                 } catch(Exception err) { err.printStackTrace(); }
             });
+            phase3Counter.cancel(true);
             return output;
         });
     }

@@ -2,7 +2,7 @@
 prefix: '&bCinnamon &8| &f'
 # {version}: The plugin's version
 messages:
-  plugin-on: '&fĐang khởi động... Cinnamon v{version}'
+  plugin-on: '&fĐang tiến hành khởi động... &bCinnamon &av{version}'
 # {mcver}: The server's version, as defined by CraftBukkit
 components:
   - '    &a[+] &fPhiên bản máy chủ: &a{mcver}'

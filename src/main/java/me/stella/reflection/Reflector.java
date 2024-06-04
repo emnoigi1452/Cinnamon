@@ -13,6 +13,7 @@ public class Reflector {
     public static ClassWrapper<?> load(String path) {
         try {
             Class<?> clazz = Class.forName(path, true, loader);
+            return new ClassWrapper<>(clazz);
         } catch(Exception err) { err.printStackTrace(); }
         return null;
     }

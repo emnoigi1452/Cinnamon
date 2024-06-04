@@ -14,7 +14,7 @@ public class CinnamonLocale implements CinnamonFile {
     private FileConfiguration config;
 
     public CinnamonLocale(CinnamonBukkit main) {
-        File file = new File(main.getDataFolder(), "config.yml");
+        File file = new File(main.getDataFolder(), "lang.yml");
         if(!file.exists())
             throw new RuntimeException("Configuration file is not generated! Please try reloading...");
         load(file);

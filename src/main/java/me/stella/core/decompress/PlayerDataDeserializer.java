@@ -13,6 +13,8 @@ import org.bukkit.World;
 import org.bukkit.inventory.Inventory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -32,7 +34,13 @@ public class PlayerDataDeserializer {
         return CompletableFuture.supplyAsync(() -> {
             if(!playerDataFile.exists())
                 return null;
-            else return nbtCompressedStreamTools.invokeStaticMethod("readNBT", playerDataFile);
+            else {
+                try {
+                    return nbtCompressedStreamTools.invokeStaticMethod("readNBT", new FileInputStream(playerDataFile));
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
     }
 

@@ -5,13 +5,13 @@ import org.bukkit.Server;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 
 public class CinnamonUtils {
 
     public static final int[] tileEntitySize = new int[] { 9, 18, 27, 36, 45, 54 };
+
+    public static ClassWrapper<?> chatColor;
 
     public static int getMaxInSet(Collection<? extends Integer> intSet) {
         int max = Integer.MIN_VALUE;
@@ -21,7 +21,7 @@ public class CinnamonUtils {
     }
 
     public static String toOnOff(boolean b) {
-        return b ? "&a&l✔" : "&c&l✘";
+        return b ? "&a&lOn" : "&c&lOff";
     }
 
     public static int getTileEntitySize(int maxSlot) {
@@ -40,22 +40,18 @@ public class CinnamonUtils {
         try {
             Class<?> nativeChatColor = Class.forName("org.bukkit.ChatColor",
                     true, getServer().getClass().getClassLoader());
-            //
-            Set<ClassWrapper<?>> nativeWrappers = new HashSet<>();
-            nativeWrappers.add(new ClassWrapper<>(nativeChatColor));
-            //
-            CinnamonTable.inject(ClassWrapper.class, nativeWrappers);
+            chatColor = new ClassWrapper<>(nativeChatColor);
         } catch (Exception err) { err.printStackTrace(); }
     }
 
     public static String color(String param) {
         try {
-            ClassWrapper<?> chatColor = CinnamonTable.get(ClassWrapper.class, (wrapper) ->
-                    wrapper.getWrappingClass().getName().contains("ChatColor")).stream().findFirst().orElse(null);
+            if(param == null)
+                param = "&7";
             if(chatColor == null)
                 throw new RuntimeException("Unable to load native class [ChatColor]");
             return String.valueOf(chatColor.invokeMethod("translateAlternateColorCodes",
-                    new Class<?>[] { char.class, String.class }, new Object[]{ '&', param }));
+                    new Class<?>[] { char.class, String.class }, new Object[]{ '&', param }).getObject());
         } catch(Exception err) { err.printStackTrace(); }
         return null;
     }
@@ -71,15 +67,15 @@ public class CinnamonUtils {
     }
 
     public static void logInfo(String param) {
-        CinnamonBukkit.console.log(Level.INFO, param);
+        CinnamonBukkit.console.log(Level.INFO, color(param));
     }
 
     public static void logWarning(String param) {
-        CinnamonBukkit.console.log(Level.WARNING, param);
+        CinnamonBukkit.console.log(Level.WARNING, color(param));
     }
 
     public static void logError(String param) {
-        CinnamonBukkit.console.log(Level.SEVERE, param);
+        CinnamonBukkit.console.log(Level.SEVERE, color(param));
     }
 
 }

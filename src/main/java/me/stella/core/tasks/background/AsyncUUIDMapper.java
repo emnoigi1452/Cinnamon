@@ -76,7 +76,7 @@ public class AsyncUUIDMapper {
                             return null;
                         });
             } catch(Exception err) { err.printStackTrace(); }
-        }, 0L, getInterval());
+        }, 100L, getInterval());
     }
 
 }

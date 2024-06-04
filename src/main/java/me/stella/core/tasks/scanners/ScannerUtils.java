@@ -1,5 +1,6 @@
 package me.stella.core.tasks.scanners;
 
+import com.sun.istack.internal.NotNull;
 import me.stella.core.tasks.scanners.data.impl.EnchantmentData;
 import me.stella.core.tasks.scanners.data.impl.ItemData;
 import me.stella.core.tasks.scanners.data.impl.LockedItemData;
@@ -67,6 +68,50 @@ public class ScannerUtils {
             }
         }
         return counter;
+    }
+
+    public static boolean matchScanQuery(@NotNull ItemStack itemStack, @NotNull SearchQuery query) {
+        if(itemStack == null || itemStack.getType() == Material.AIR)
+            return false;
+        SupportProcessor.RemoveLockedReceipt receipt = SupportProcessor.removeOwnerIfSupport(itemStack);
+        switch(query.getType()) {
+            case ITEM:
+                ItemData itemQueryData = (ItemData) query.getData().getData();
+                ItemStack item = itemQueryData.getItem();
+                if(itemStack.isSimilar(item))
+                    return true;
+            case ITEM_LOCKED:
+                if(LockedItems.enabled)
+                    break;
+                LockedItemData lockedQueryData = (LockedItemData) query.getData().getData();
+                if(lockedQueryData.isGlobal()) {
+                    if(receipt.isLockedRemoved())
+                        return true;
+                } else {
+                    if(receipt.isLockedRemoved() && lockedQueryData.getTarget().equals(receipt.getOwner()))
+                        return true;
+                }
+                break;
+            case ITEM_MMOITEMS:
+                if(MMOItems.enabled)
+                    break;
+                MMOItemData mmoItemData = (MMOItemData) query.getData().getData();
+                if(mmoItemData.isGlobal()) {
+                    if(MMOItems.isMMOItem(itemStack))
+                        return true;
+                } else {
+                    if(MMOItems.getMMOItemID(itemStack).equals(mmoItemData.getTarget()))
+                        return true;
+                }
+                break;
+            case ITEM_ENCHANT:
+                EnchantmentData data = (EnchantmentData) query.getData().getData();
+                int level = itemStack.getEnchantmentLevel(data.getEnchantment());
+                if(data.compare(level, data.getLevel()))
+                    return true;
+                break;
+        }
+        return false;
     }
 
     public static String getOperation(String operationExpression) {
