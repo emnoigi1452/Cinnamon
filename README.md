@@ -40,7 +40,7 @@ Update **(04/06/2024)**
 - Implemented world chests and item frames scanners
 - Optimize background tasks logic
 - Optimize support frame loading logic
-- Defaults world decompression algorithm to `LEGACY`
+- Defaults world decompression algorithm to `LEGACY` (1.12.2)
 - Fixes exceptions which occur in data deserializers
 - Remove native classes from variable table
 - Fixes random bugs with logging (debug / info messages)
