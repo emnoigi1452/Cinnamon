@@ -25,7 +25,7 @@ And more operations planning to be added in later releases!
 **Cinnamon** supports both basic and advanced searches, and accessible both via the command-line and through a GUI menu to fully customize your searches.
 
 > [!NOTE]
-> You can combine perform multiple queries at the same time (in development)
+> You can perform multiple queries at the same time (feature in development)
 
 # API *(Not yet implemented)*
 For developers, the API will be implemented when the plugin is finalized.
