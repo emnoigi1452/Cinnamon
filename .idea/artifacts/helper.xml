@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact name="helper">
-    <output-path>$PROJECT_DIR$/out/artifacts/helper</output-path>
-    <root id="root">
-      <element id="library" level="project" name="helper" />
-    </root>
-  </artifact>
-</component>
