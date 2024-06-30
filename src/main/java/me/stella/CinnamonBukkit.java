@@ -10,12 +10,13 @@ import me.stella.core.storage.branches.config.ChunkMap;
 import me.stella.core.storage.branches.config.UUIDMap;
 import me.stella.core.tasks.background.AsyncChunkMapper;
 import me.stella.core.tasks.background.AsyncUUIDMapper;
+import me.stella.objects.AutoCloseJavaScheduler;
+import me.stella.objects.CinnamonTable;
 import me.stella.support.ClassLibrary;
 import me.stella.support.external.plugins.LockedItems;
 import me.stella.support.external.plugins.MMOItems;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -31,9 +32,10 @@ import java.util.stream.Collectors;
 )
 public final class CinnamonBukkit extends ExtendedJavaPlugin {
 
-    public final static String version = "1.0-alpha02";
+    public final static String version = "0.1-alpha04";
     public static final Logger console = Logger.getLogger("Minecraft");
-    private static final ScheduledExecutorService javaScheduler = Executors.newScheduledThreadPool(64);
+    private static final AutoCloseJavaScheduler javaScheduler = new AutoCloseJavaScheduler(
+            Executors.newScheduledThreadPool(256));
     private static CinnamonBukkit main;
     public static boolean debug = false;
 
@@ -60,10 +62,6 @@ public final class CinnamonBukkit extends ExtendedJavaPlugin {
         }, 10L, 30L, TimeUnit.SECONDS);
     }
 
-    public static ScheduledExecutorService getJavaScheduler() {
-        return javaScheduler;
-    }
-
     public static void loadExternalSupport() {
         LockedItems.enabled = CinnamonUtils.isPluginEnabled("LockedItems");
         MMOItems.enabled = CinnamonUtils.isPluginEnabled("MMOItems");
@@ -86,14 +84,26 @@ public final class CinnamonBukkit extends ExtendedJavaPlugin {
                 CinnamonTable.inject(AsyncChunkMapper.class, chunkMapper);
                 Promise.start().thenApplyAsync(n -> locale.getComponentsInfo().stream().map(
                         str -> str.replace("{mcver}", ClassLibrary.version)
-                        .replace("{uid_cache_status}", CinnamonUtils.toOnOff(uidMapConfig.isEnabled()))
-                        .replace("{chunk_cache_status}", CinnamonUtils.toOnOff(chunkMapConfig.isEnabled()))
+                                .replace("{uid_cache_status}", CinnamonUtils.toOnOff(uidMapConfig.isEnabled()))
+                                .replace("{chunk_cache_status}", CinnamonUtils.toOnOff(chunkMapConfig.isEnabled()))
                 ).collect(Collectors.toList())).thenApplySync(msg -> {
                     msg.forEach(CinnamonUtils::logInfo);
                     return null;
                 });
             } catch(Exception err) { err.printStackTrace(); }
         });
+    }
+
+    @Override
+    protected void disable() {
+        final AutoCloseJavaScheduler scheduler = getJavaScheduler();
+        (new Thread(() -> {
+            try {
+                scheduler.shutdown();
+            } catch(Exception err) { err.printStackTrace(); }
+        })).start();
+        CinnamonTable.get(AsyncUUIDMapper.class).closeIfEnabled();
+        CinnamonTable.get(AsyncChunkMapper.class).closeIfEnabled();
     }
 
     public static ClassLoader getLoader() {
@@ -104,13 +114,7 @@ public final class CinnamonBukkit extends ExtendedJavaPlugin {
         return main;
     }
 
-    @Override
-    protected void disable() {
-        AsyncUUIDMapper uuidMapper = CinnamonTable.get(AsyncUUIDMapper.class);
-        if(uuidMapper.isEnabled())
-            uuidMapper.getMapperTask().close();
-        AsyncChunkMapper chunkMapper = CinnamonTable.get(AsyncChunkMapper.class);
-        if(chunkMapper.isEnabled())
-            chunkMapper.getMapperTask().close();
+    public static AutoCloseJavaScheduler getJavaScheduler() {
+        return javaScheduler;
     }
 }

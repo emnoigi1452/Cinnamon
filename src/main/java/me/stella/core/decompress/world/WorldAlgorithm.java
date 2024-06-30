@@ -10,7 +10,7 @@ import java.io.File;
 
 public enum WorldAlgorithm {
 
-    LEGACY("v1_12_R1", new DecompressionAlgorithm() {
+    LEGACY("v1_13_R2", new DecompressionAlgorithm() {
         @Override
         public ObjectWrapper<?> buildRegionFile(@NotNull File file) {
             SupportFrame regionFile = ClassLibrary.getSupportFor("RegionFile");

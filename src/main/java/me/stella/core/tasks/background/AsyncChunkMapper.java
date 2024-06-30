@@ -53,29 +53,26 @@ public class AsyncChunkMapper {
         runPromise();
     }
 
+    public void closeIfEnabled() {
+        if(enabled)
+            getMapperTask().close();
+    }
+
     private void runPromise() {
-        // if another mapper is active, close that shit
         if(this.mapper != null)
             mapper.close();
-        // start running the task
         mapper = Schedulers.async().runRepeating(() -> {
-            // clear current chunks being cache
             cache = Collections.synchronizedMap(new HashMap<>());
             try {
-                // obtaining loaded worlds via server main thread
                 Promise.start().thenApplySync(e -> CinnamonUtils.getServer().getWorlds()).thenApplyAsync(worlds -> {
-                    // we run through each world
                             worlds.forEach(world -> {
-                                // get loaded chunks via the deserialization process
                                 Promise<List<int[]>> chunks = Promise.start()
                                         .thenApplyAsync(c -> WorldDeserializer.readLoadedChunks(world).join())
-                                        // if enabled, filters out empty chunks (no entities/chunks)
                                         .thenApplyAsync(coords -> coords.stream().filter(pair -> {
                                             if(!excludeEmptyChunks())
                                                 return true;
                                             return !(WorldDeserializer.isEmptyChunk(world, pair[0], pair[1])).join();
                                         }).collect(Collectors.toList()));
-                                // put the rest in the cache, idk
                                 chunks.thenAcceptSync(c -> cache.put(world, c));
                             });
                             return null;

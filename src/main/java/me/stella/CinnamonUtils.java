@@ -36,6 +36,10 @@ public class CinnamonUtils {
         return CinnamonBukkit.getMain().getServer();
     }
 
+    public static ClassLoader getServerClassLoader() {
+        return getServer().getClass().getClassLoader();
+    }
+
     public static void loadNativeClasses() {
         try {
             Class<?> nativeChatColor = Class.forName("org.bukkit.ChatColor",
@@ -77,5 +81,4 @@ public class CinnamonUtils {
     public static void logError(String param) {
         CinnamonBukkit.console.log(Level.SEVERE, color(param));
     }
-
 }

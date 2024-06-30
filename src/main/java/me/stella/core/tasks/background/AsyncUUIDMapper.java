@@ -56,6 +56,11 @@ public class AsyncUUIDMapper {
         runPromise();
     }
 
+    public void closeIfEnabled() {
+        if(enabled)
+            getMapperTask().close();
+    }
+
     private void runPromise() {
         if(this.mapper != null)
             mapper.close();

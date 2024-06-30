@@ -1,6 +1,7 @@
 package me.stella.support.craftbukkit;
 
 import me.stella.CinnamonBukkit;
+import me.stella.CinnamonUtils;
 import me.stella.reflection.ClassWrapper;
 import me.stella.reflection.ObjectWrapper;
 import me.stella.support.ClassLibrary;
@@ -11,7 +12,7 @@ public class DynamicBukkit {
     private static ClassWrapper<?> getCraftItemStack() {
         String path = "org.bukkit.craftbukkit." + ClassLibrary.version + ".inventory.CraftItemStack";
         try {
-            Class<?> craftItemStack = Class.forName(path, true, CinnamonBukkit.getLoader());
+            Class<?> craftItemStack = Class.forName(path, true, CinnamonUtils.getServerClassLoader());
             return new ClassWrapper<>(craftItemStack);
         } catch(Exception err) { err.printStackTrace(); }
         return null;

@@ -3,6 +3,8 @@ package me.stella.core.decompress.world;
 import com.sun.istack.internal.NotNull;
 import me.stella.CinnamonBukkit;
 import me.stella.CinnamonUtils;
+import me.stella.objects.MultiThreadExecutor;
+import me.stella.objects.reporter.impl.VanillaTaskReporter;
 import me.stella.reflection.ObjectCaster;
 import me.stella.reflection.ObjectWrapper;
 import me.stella.support.ClassLibrary;
@@ -16,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorldDeserializer {
 
@@ -50,20 +53,33 @@ public class WorldDeserializer {
             File regionFile = new File(worldFolder, "region");
             if(!regionFile.exists())
                 return new ArrayList<>();
-            for(File region: Objects.requireNonNull(regionFile.listFiles())) {
-                if(!region.isFile())
-                    continue;
-                String[] mcaSyntax = region.getName().split("\\.");
-                int regionX = Integer.parseInt(mcaSyntax[1]); int regionZ = Integer.parseInt(mcaSyntax[2]);
-                ObjectWrapper<?> parsedRegion = algorithm.buildRegionFile(region);
-                int[] offsetData = algorithm.getOffsetData(parsedRegion);
-                for(int x = 0; x < 32; x++) {
-                    for(int z = 0; z < 32; z++) {
-                        if(offsetData[x + (z * 32)] != 0)
-                            chunks.add(new int[] { ((regionX << 5) + x), ((regionZ << 5) + z) });
-                    }
+            File[] regionDataSet = Objects.requireNonNull(regionFile.listFiles());
+            try {
+                MultiThreadExecutor executor = new MultiThreadExecutor(256);
+                VanillaTaskReporter reporter = new VanillaTaskReporter();
+                for(File region: regionDataSet) {
+                    executor.queueTask(() -> {
+                        try {
+                            AtomicInteger internalCounter = executor.getCounter();
+                            if(region.isFile()) {
+                                String[] mcaSyntax = region.getName().split("\\.");
+                                int regionX = Integer.parseInt(mcaSyntax[1]); int regionZ = Integer.parseInt(mcaSyntax[2]);
+                                ObjectWrapper<?> parsedRegion = algorithm.buildRegionFile(region);
+                                int[] offsetData = algorithm.getOffsetData(parsedRegion);
+                                for(int x = 0; x < 32; x++) {
+                                    for(int z = 0; z < 32; z++) {
+                                        if(offsetData[x + (z * 32)] != 0)
+                                            chunks.add(new int[] { ((regionX << 5) + x), ((regionZ << 5) + z) });
+                                    }
+                                }
+                            }
+                            reporter.setCompletion(((double) executor.getCounter().get() / regionDataSet.length));
+                        } catch(Exception err) { err.printStackTrace(); }
+                        return null;
+                    });
                 }
-            }
+                executor.awaitCompletion();
+            } catch(Exception err) { err.printStackTrace(); }
             return chunks;
         });
     }
@@ -75,8 +91,7 @@ public class WorldDeserializer {
             if(!worldFolder.exists())
                 return null;
             try {
-                ObjectWrapper<?> data = algorithm.algorithm.parseNBTData(worldFolder, chunkX, chunkZ);
-                return data;
+                return algorithm.algorithm.parseNBTData(worldFolder, chunkX, chunkZ);
             } catch(Exception err) { err.printStackTrace(); }
             return null;
         });

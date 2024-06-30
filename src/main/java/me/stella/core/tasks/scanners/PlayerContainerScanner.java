@@ -2,16 +2,15 @@ package me.stella.core.tasks.scanners;
 
 import com.google.common.collect.ImmutableMap;
 import com.sun.istack.internal.NotNull;
-import me.lucko.helper.Schedulers;
 import me.lucko.helper.promise.Promise;
-import me.lucko.helper.scheduler.Task;
 import me.stella.CinnamonBukkit;
-import me.stella.CinnamonTable;
 import me.stella.core.decompress.PlayerDataDeserializer;
 import me.stella.core.tasks.background.AsyncUUIDMapper;
 import me.stella.core.tasks.scanners.io.ScanResult;
 import me.stella.core.tasks.scanners.io.SearchQuery;
-import me.stella.core.tasks.scanners.reporter.PlayerScanReporter;
+import me.stella.objects.AutoCloseJavaScheduler;
+import me.stella.objects.CinnamonTable;
+import me.stella.objects.reporter.impl.PlayerScanReporter;
 import me.stella.reflection.ObjectWrapper;
 import me.stella.support.ClassLibrary;
 import me.stella.support.SupportFrame;
@@ -19,7 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,7 +31,7 @@ public class PlayerContainerScanner {
         // attempts a remap of all user's uid
         final PlayerScanReporter reporter = new PlayerScanReporter();
         final AtomicInteger atomicCounter = new AtomicInteger();
-        final ScheduledExecutorService nativeScheduler = CinnamonBukkit.getJavaScheduler();
+        final AutoCloseJavaScheduler nativeScheduler = CinnamonBukkit.getJavaScheduler();
         if(forceRemap) {
             final SupportFrame nbtTagCompound = ClassLibrary.getSupportFor("NBTTagCompound");
             task = Promise.start().thenApplySync(i -> Arrays.asList(Bukkit.getOfflinePlayers()))
@@ -82,7 +80,7 @@ public class PlayerContainerScanner {
                 Inventory inventory = PlayerDataDeserializer.buildInventory(data).join();
                 ContainerSource sourceInv = new ContainerSource(uidMapper.getUUIDByName(player), InternalContainer.INVENTORY);
                 output.add(new ScanResult<>(sourceInv, ScannerUtils.performScan(query, inventory, 41)));
-                // scanning enderchest
+                // scanning ender chest
                 Inventory enderChest = PlayerDataDeserializer.buildEnderChest(data).join();
                 ContainerSource sourceEC = new ContainerSource(uidMapper.getUUIDByName(player), InternalContainer.ENDER_CHEST);
                 output.add(new ScanResult<>(sourceEC, ScannerUtils.performScan(query, enderChest, 27)));

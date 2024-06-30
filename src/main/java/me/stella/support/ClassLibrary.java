@@ -1,6 +1,7 @@
 package me.stella.support;
 
-import me.stella.CinnamonTable;
+import me.stella.CinnamonBukkit;
+import me.stella.objects.CinnamonTable;
 import me.stella.CinnamonUtils;
 import me.stella.core.decompress.world.WorldAlgorithm;
 import me.stella.core.decompress.world.WorldDeserializer;
@@ -27,7 +28,7 @@ public class ClassLibrary {
             CinnamonUtils.debug("Loading classes: " + Arrays.toString(versionDictionary.getClasses()));
             for(String className: versionDictionary.getClasses()) {
                 Class<SupportFrame> classSupport = (Class<SupportFrame>) Class.forName(
-                        path.replace("{version}", version) + className);
+                        path.replace("{version}", version) + className, true, CinnamonBukkit.getLoader());
                 SupportFrame frame = (SupportFrame) classSupport.getConstructors()[0].newInstance();
                 CinnamonUtils.debug(classLoading.replace("{class}", frame.getDirectory()));
                 inject(className, frame);
