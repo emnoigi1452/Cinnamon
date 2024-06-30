@@ -35,13 +35,11 @@ For developers, the API will be implemented when the plugin is finalized.
 > [!IMPORTANT]
 > This section will only display changes made to the latest version of the source code
 
-Update **(04/06/2024)**
-- Reporters now use native java schedulers instead of the Bukkit scheduler
-- Implemented world chests and item frames scanners
-- Optimize background tasks logic
-- Optimize support frame loading logic
-- Defaults world decompression algorithm to `LEGACY` (1.12.2)
-- Fixes exceptions which occur in data deserializers
-- Remove native classes from variable table
-- Fixes random bugs with logging (debug / info messages)
-- Changes default locale messages
+Update **(30/06/2024)**
+- Reorganize package distribution of utility classes
+- Added basic structuring for later API implementation
+- Construct new multithread-queue system
+- `WorldTileScanner` and `WorldDeserializer` now use multithread-queue system
+- Added `VanillaTaskReporter` for simple (no phase-based) task reporting
+- Construct new auto-closing scheduler with safe task storing
+- Minor logical checks rework for `AsyncChunkMapper` and `AsyncUUIDMapper`
