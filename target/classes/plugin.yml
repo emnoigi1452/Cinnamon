@@ -1,0 +1,7 @@
+name: Cinnamon
+version: 1.0-alpha02
+main: me.stella.CinnamonBukkit
+description: An advanced, reflective system for tracking items.
+api-version: '1.13'
+author: StellarSeal_
+softdepend: [PlaceholderAPI]
