@@ -5,7 +5,7 @@
 > Cinnamon is planned to be compatible with all versions above `1.12.2`
 
 <p align="center">
-  <img src="https://i.postimg.cc/SNQNjZbK/cinnamon-logo.png" alt="Cinnamon" style="width: 20%;" />
+  <img src="https://i.postimg.cc/SNQNjZbK/cinnamon-logo.png" alt="Cinnamon" style="width: 30%;" />
 </p>
 
 **How does it work?** `Cinnamon` can perform scans on the server via its data files (world data, player data) to obtain an accurate count of items on the server
