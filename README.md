@@ -17,7 +17,7 @@ Server owners can obtain an accurate count of items stored within:
 Currently, the following search operations are supported
 - Search for a specific item
 - Search for items that are locked/locked by a specific player **(Requires LockedItems)**
-- Search for MMOItems/MMOItems with a specific ID.
+- Search for MMOItems with a specific ID.
 - Search for enchantments with a specific level requirement (larger/smaller/equal..)
 
 And more operations planning to be added in later releases!
